@@ -94,12 +94,22 @@ static NVGpaint *new_paint(lua_State *L, NVGpaint *paint) {
 static int Lfont(lua_State *L) {
     NVGcontext *ctx = check_context(L, 1);
     const char *name = luaL_checkstring(L, 2);
-    const char *filename = luaL_checkstring(L, 3);
-    int font = nvgCreateFont(ctx, name, filename);
-    if (font < 0)
-        lbind_argferror(L, 3, "invalid font file: %s", filename);
-    lua_pushinteger(L, font);
-    return 1;
+    if (lua_type(L, 3) == LUA_TLIGHTUSERDATA) {
+        unsigned char* data  = lua_touserdata(L, 3);
+        int ndata = (int)luaL_checknumber(L, 4);
+        int font = nvgCreateFontMem(ctx, name, data, ndata, 0);
+        if (font < 0)
+            lbind_argferror(L, 3, "invalid font data");
+        lua_pushinteger(L, font);
+        return 1;
+    } else {
+        const char *filename = luaL_checkstring(L, 3);
+        int font = nvgCreateFont(ctx, name, filename);
+        if (font < 0)
+            lbind_argferror(L, 3, "invalid font file: %s", filename);
+        lua_pushinteger(L, font);
+        return 1;
+    }
 }
 
 static int LlinearGradient(lua_State *L) {
