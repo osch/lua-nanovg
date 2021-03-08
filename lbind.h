@@ -75,11 +75,13 @@ LUALIB_API void (luaL_setfuncs) (lua_State *L, const luaL_Reg *l, int nup);
 # define LB_API extern
 #endif
 
-#if defined(_WIN32)
-# define LBLIB_API __declspec(dllexport)
-#else
-# define LBLIB_API extern
-#endif
+#ifndef LBLIB_API
+# if defined(_WIN32)
+#   define LBLIB_API __declspec(dllexport)
+# else
+#   define LBLIB_API extern
+# endif
+#endif 
 
 /* lbind internal max alignment */
 #ifndef LBIND_MAXALIGN
